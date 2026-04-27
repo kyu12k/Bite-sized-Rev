@@ -597,11 +597,19 @@ body.fsz-large  .fixed-char,
 body.fsz-large  .char-slot  { font-size: 21px; }
 body.fsz-large  .memory-ref { font-size: 28px; }
 body.fsz-large  .verse-reveal { font-size: 20px; }
+body.fsz-large  .verse-btn  { font-size: 17px; }
+
+body.fsz-xlarge .verse-text,
+body.fsz-xlarge .fixed-char,
+body.fsz-xlarge .char-slot  { font-size: 27px; }
+body.fsz-xlarge .memory-ref { font-size: 34px; }
+body.fsz-xlarge .verse-reveal { font-size: 26px; }
+body.fsz-xlarge .verse-btn  { font-size: 21px; }
 
 /* ── Settings screen ── */
 .font-size-buttons {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 .font-size-btn {

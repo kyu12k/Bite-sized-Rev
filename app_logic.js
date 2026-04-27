@@ -77,7 +77,7 @@ function recentAccuracy(ch) {
 // ── Font size ──
 const FONT_KEY = 'revdrills_font';
 function setFontSize(size) {
-  document.body.classList.remove('fsz-small','fsz-medium','fsz-large');
+  document.body.classList.remove('fsz-small','fsz-medium','fsz-large','fsz-xlarge');
   document.body.classList.add('fsz-' + size);
   localStorage.setItem(FONT_KEY, size);
   document.querySelectorAll('.font-size-btn').forEach(b => b.classList.remove('selected'));
