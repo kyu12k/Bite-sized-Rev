@@ -557,6 +557,7 @@ function toggleUltimate() {
     btn.classList.toggle('active', ultimateMode);
   }
   renderMemorySlots();
+  focusMemoryInput();
 }
 
 function resetMemory() {
