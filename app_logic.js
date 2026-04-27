@@ -424,7 +424,34 @@ function renderMemoryMode(ch, v, data) {
   setTimeout(function() {
     const input = el('hidden-input');
     if (!input) return;
-    input.addEventListener('input', function(e) { handleMemoryInput(e); });
+    let isComposing = false;
+    let preCompositionValue = '';
+
+    input.addEventListener('compositionstart', function() {
+      isComposing = true;
+      preCompositionValue = input.value;
+    });
+
+    input.addEventListener('compositionupdate', function(e) {
+      // 조합 중 미리보기: 확정된 텍스트 + 현재 조합 중인 글자
+      const preview = preCompositionValue + (e.data || '');
+      handleMemoryInput({ target: { value: preview } });
+    });
+
+    input.addEventListener('compositionend', function(e) {
+      isComposing = false;
+      const committed = preCompositionValue + (e.data || '');
+      input.value = committed;
+      handleMemoryInput({ target: input });
+      input.selectionStart = input.selectionEnd = input.value.length;
+    });
+
+    input.addEventListener('input', function(e) {
+      if (isComposing) return;
+      handleMemoryInput(e);
+      input.selectionStart = input.selectionEnd = input.value.length;
+    });
+
     input.focus();
   }, 120);
 }
