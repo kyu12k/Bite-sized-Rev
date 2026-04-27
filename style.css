@@ -384,6 +384,12 @@ html, body {
   color: var(--text2);
 }
 .fixed-char.space { display: inline-block; width: .5em; }
+.char-slot.space-slot {
+  width: .7ch;
+  border-bottom-color: var(--border);
+  margin: 0 2px;
+}
+.char-slot.space-slot.active { border-bottom-color: var(--primary); }
 
 /* 궁극의 암기: remove underlines */
 .typing-board.ultimate-mode .char-slot {

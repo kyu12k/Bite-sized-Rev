@@ -40,6 +40,7 @@ function getVerseData(ch, v) {
 }
 
 function isTypeable(char) {
+  if (char === ' ') return true;
   const c = char.charCodeAt(0);
   return (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0x61 && c <= 0x7A) || (c >= 0x41 && c <= 0x5A) || (c >= 0x30 && c <= 0x39);
 }
@@ -501,6 +502,7 @@ function renderMemorySlots() {
     } else {
       const isCurrent = typeableIdx === filled && !awaitingNext;
       let cls = 'char-slot';
+      if (s.char === ' ') cls += ' space-slot';
       if (s.value) cls += ' filled';
       if (isCurrent) cls += ' active';
       if (s.wrong) cls += ' wrong';
