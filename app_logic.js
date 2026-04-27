@@ -479,7 +479,8 @@ function focusMemoryInput() {
 
 function handleMemoryInput(e) {
   if (awaitingNext) return;
-  const typed = e.target.value;
+  const input = e.target;
+  const typed = input.value;
   memoryTyped = typed;
   let idx = 0;
   for (let i = 0; i < memorySlots.length; i++) {
@@ -490,6 +491,10 @@ function handleMemoryInput(e) {
     idx++;
   }
   renderMemorySlots();
+  // 한글 IME 조합 완료 후 커서가 앞으로 이동하는 문제 방지
+  const len = input.value.length;
+  input.selectionStart = len;
+  input.selectionEnd = len;
 }
 
 function toggleUltimate() {
