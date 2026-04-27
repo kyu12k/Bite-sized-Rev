@@ -427,21 +427,26 @@ function renderMemoryMode(ch, v, data) {
     if (!input) return;
     let isComposing = false;
     let preCompositionValue = '';
+    let lastComposingData = '';
 
     input.addEventListener('compositionstart', function() {
       isComposing = true;
       preCompositionValue = input.value;
+      lastComposingData = '';
     });
 
     input.addEventListener('compositionupdate', function(e) {
-      // 조합 중 미리보기: 확정된 텍스트 + 현재 조합 중인 글자
-      const preview = preCompositionValue + (e.data || '');
+      lastComposingData = e.data || '';
+      const preview = preCompositionValue + lastComposingData;
       handleMemoryInput({ target: { value: preview } });
     });
 
     input.addEventListener('compositionend', function(e) {
       isComposing = false;
-      const committed = preCompositionValue + (e.data || '');
+      // 터치 등으로 조합이 끊기면 e.data가 빈 문자열로 오므로 lastComposingData로 보완
+      const data = e.data || lastComposingData || '';
+      lastComposingData = '';
+      const committed = preCompositionValue + data;
       input.value = committed;
       handleMemoryInput({ target: input });
       input.selectionStart = input.selectionEnd = input.value.length;
