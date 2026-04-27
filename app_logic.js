@@ -453,6 +453,21 @@ function renderMemoryMode(ch, v, data) {
     });
 
     input.focus();
+
+    // 화면 어디를 눌러도 포커스가 hidden-input으로 돌아오도록
+    function keepFocus(e) {
+      const target = e.target;
+      // 버튼, 링크, select 등 실제 인터랙티브 요소는 제외
+      if (target === input) return;
+      if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.tagName === 'SELECT') return;
+      e.preventDefault();
+      input.focus();
+    }
+    const sessionEl = document.getElementById('screen-session');
+    if (sessionEl) {
+      sessionEl.addEventListener('touchstart', keepFocus, { passive: false });
+      sessionEl.addEventListener('mousedown', keepFocus);
+    }
   }, 120);
 }
 
