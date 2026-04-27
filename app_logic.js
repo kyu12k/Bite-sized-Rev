@@ -1,17 +1,30 @@
 
 // ── Save / Load ──
-const SAVE_KEY = 'revdrills_v1';
+const SAVE_KEY = 'revdrills_v2';
+
+function defaultModeData() {
+  return { penalty: {}, history: {}, attempts: {}, timerRecords: {}, sessionAccuracy: {} };
+}
 
 function defaultSave() {
-  return { penalty: {}, history: {}, attempts: {}, timerRecords: {}, sessionAccuracy: {} };
+  return { address: defaultModeData(), memory: defaultModeData() };
 }
 
 let save = defaultSave();
 
+function modeData(mode) {
+  return save[mode] || (save[mode] = defaultModeData());
+}
+
 function loadSave() {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
-    if (raw) save = Object.assign(defaultSave(), JSON.parse(raw));
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      save = defaultSave();
+      if (parsed.address) save.address = Object.assign(defaultModeData(), parsed.address);
+      if (parsed.memory)  save.memory  = Object.assign(defaultModeData(), parsed.memory);
+    }
   } catch(e) { save = defaultSave(); }
 }
 
@@ -49,25 +62,28 @@ function charsMatch(a, b) {
   return a === b;
 }
 
-function poolSize(ch) {
+function poolSize(ch, mode) {
+  const d = modeData(mode);
   const n = chapterVerseCount(ch);
   let total = 0;
-  for (let v = 1; v <= n; v++) total += 1 + (save.penalty[verseRef(ch, v)] || 0);
+  for (let v = 1; v <= n; v++) total += 1 + (d.penalty[verseRef(ch, v)] || 0);
   return total;
 }
 
-function chapterPenaltyTotal(ch) {
+function chapterPenaltyTotal(ch, mode) {
+  const d = modeData(mode);
   const n = chapterVerseCount(ch);
   let extra = 0;
-  for (let v = 1; v <= n; v++) extra += save.penalty[verseRef(ch, v)] || 0;
+  for (let v = 1; v <= n; v++) extra += d.penalty[verseRef(ch, v)] || 0;
   return extra;
 }
 
-function recentAccuracy(ch) {
+function recentAccuracy(ch, mode) {
+  const d = modeData(mode);
   const n = chapterVerseCount(ch);
   let total = 0, correct = 0;
   for (let v = 1; v <= n; v++) {
-    const hist = save.history[verseRef(ch, v)] || [];
+    const hist = d.history[verseRef(ch, v)] || [];
     hist.forEach(r => { total++; if (r) correct++; });
   }
   if (!total) return null;
@@ -145,12 +161,13 @@ function formatTime(sec) {
 // ── Session state ──
 let session = null;
 
-function buildQueue(ch) {
+function buildQueue(ch, mode) {
+  const d = modeData(mode);
   const n = chapterVerseCount(ch);
   const items = [];
   for (let v = 1; v <= n; v++) {
     const ref = verseRef(ch, v);
-    const copies = 1 + (save.penalty[ref] || 0);
+    const copies = 1 + (d.penalty[ref] || 0);
     for (let i = 0; i < copies; i++) items.push(ref);
   }
   return shuffle(items);
@@ -163,7 +180,7 @@ function startSession(ch, mode) {
   session = {
     chapter: ch,
     mode,
-    queue: buildQueue(ch),
+    queue: buildQueue(ch, mode),
     queueIdx: 0,
     wrongCounts: {},
     attemptCounts: {},
@@ -209,33 +226,31 @@ function onWrong() {
 function finalizeSession() {
   stopTimer();
   const ch = session.chapter;
+  const mode = session.mode;
+  const d = modeData(mode);
   const n = chapterVerseCount(ch);
   let totalWrong = 0;
   for (let v = 1; v <= n; v++) {
     const ref = verseRef(ch, v);
     const wrongs = session.wrongCounts[ref] || 0;
     totalWrong += wrongs;
-    save.penalty[ref] = wrongs;
-    if (!save.history[ref]) save.history[ref] = [];
-    save.history[ref].push(wrongs === 0);
-    if (save.history[ref].length > 5) save.history[ref].shift();
-    save.attempts[ref] = (save.attempts[ref] || 0) + (session.attemptCounts[ref] || 0);
+    d.penalty[ref] = wrongs;
+    if (!d.history[ref]) d.history[ref] = [];
+    d.history[ref].push(wrongs === 0);
+    if (d.history[ref].length > 5) d.history[ref].shift();
+    d.attempts[ref] = (d.attempts[ref] || 0) + (session.attemptCounts[ref] || 0);
   }
-  // session accuracy for graph (정답률 %)
-  if (!save.sessionAccuracy) save.sessionAccuracy = {};
   const totalQ = Object.values(session.attemptCounts).reduce(function(a,b){ return a+b; }, 0) || n;
   const pct = Math.round((totalQ - totalWrong) / totalQ * 100);
-  if (!save.sessionAccuracy[ch]) save.sessionAccuracy[ch] = [];
-  save.sessionAccuracy[ch].push(pct);
-  if (save.sessionAccuracy[ch].length > 5) save.sessionAccuracy[ch].shift();
+  if (!d.sessionAccuracy[ch]) d.sessionAccuracy[ch] = [];
+  d.sessionAccuracy[ch].push(pct);
+  if (d.sessionAccuracy[ch].length > 5) d.sessionAccuracy[ch].shift();
 
-  // timer record: only if timer was on and no wrong answers (완벽 클리어)
-  if (!save.timerRecords) save.timerRecords = {};
   if (timerEnabled && totalWrong === 0) {
-    if (!save.timerRecords[ch]) save.timerRecords[ch] = [];
-    save.timerRecords[ch].push(timerSeconds);
-    save.timerRecords[ch].sort(function(a,b){ return a-b; });
-    if (save.timerRecords[ch].length > 10) save.timerRecords[ch].pop();
+    if (!d.timerRecords[ch]) d.timerRecords[ch] = [];
+    d.timerRecords[ch].push(timerSeconds);
+    d.timerRecords[ch].sort(function(a,b){ return a-b; });
+    if (d.timerRecords[ch].length > 10) d.timerRecords[ch].pop();
   }
   persistSave();
 }
@@ -260,9 +275,10 @@ function renderHome() {
   for (let ch = 1; ch <= 22; ch++) {
     const n = chapterVerseCount(ch);
     totalVerses += n;
-    const penalty = chapterPenaltyTotal(ch);
-    const acc = recentAccuracy(ch);
-    const hasData = Object.keys(save.attempts).some(r => r.startsWith(ch + '-'));
+    // 홈 카드는 구절 받아쓰기(memory) 기준으로 표시
+    const penalty = chapterPenaltyTotal(ch, 'memory');
+    const acc = recentAccuracy(ch, 'memory');
+    const hasData = Object.keys(modeData('memory').attempts).some(r => r.startsWith(ch + '-'));
     if (hasData && penalty === 0) totalDone += n;
     let cardClass = 'chapter-card';
     if (hasData && penalty === 0) cardClass += ' perfect';
@@ -299,10 +315,6 @@ function openSetup(ch) {
   el('setup-chapter-sub').textContent = chapterVerseCount(ch) + '절';
   renderSetupMode();
   renderPoolPreview();
-  // timer best record label
-  const rec = save.timerRecords && save.timerRecords[ch];
-  const bestLabel = el('timer-best-label');
-  if (bestLabel) bestLabel.textContent = rec && rec.length ? '최고 ' + formatTime(rec[0]) : '';
   showScreen('screen-setup');
 }
 
@@ -316,12 +328,13 @@ function renderSetupMode() {
 function selectMode(mode) {
   setupMode = mode;
   renderSetupMode();
+  renderPoolPreview();
 }
 
 function renderPoolPreview() {
   const ch = setupChapter;
   const base = chapterVerseCount(ch);
-  const extra = chapterPenaltyTotal(ch);
+  const extra = chapterPenaltyTotal(ch, setupMode);
   const total = base + extra;
   el('pool-total').textContent = total;
   if (extra > 0) {
@@ -632,7 +645,7 @@ function showResult() {
   // timer line
   const timerLine = el('result-timer-line');
   if (timerEnabled) {
-    const rec = save.timerRecords && save.timerRecords[ch];
+    const rec = modeData(session.mode).timerRecords[ch];
     const best = rec && rec.length ? rec[0] : null;
     let msg = '⏱ ' + formatTime(timerSeconds);
     if (allPerfect && best === timerSeconds) msg += '  🎉 신기록!';
@@ -661,11 +674,12 @@ function showResult() {
   el('result-rows').innerHTML = rows;
 
   const nextBase = n;
-  const nextExtra = chapterPenaltyTotal(ch);
+  const nextExtra = chapterPenaltyTotal(ch, session.mode);
   const nextTotal = nextBase + nextExtra;
   el('next-total').textContent = nextTotal;
   if (nextExtra > 0) {
-    const details = wrongVerses.map(function(w) { return w.v + '절 +' + (save.penalty[verseRef(ch, w.v)] || 0); }).join(', ');
+    const d = modeData(session.mode);
+    const details = wrongVerses.map(function(w) { return w.v + '절 +' + (d.penalty[verseRef(ch, w.v)] || 0); }).join(', ');
     el('next-extra-detail').textContent = '(기본 ' + nextBase + ' + 추가 ' + nextExtra + ': ' + details + ')';
   } else {
     el('next-extra-detail').textContent = '기본 ' + nextBase + '절만 출제';
@@ -691,16 +705,43 @@ function goHome() {
 }
 
 // ── Stats screen ──
+let statsChapter = 1;
+let statsMode = 'address';
+
 function openStats(ch) {
+  statsChapter = ch;
+  statsMode = setupMode;
   el('stats-ch-title').textContent = '계시록 ' + ch + '장 상세';
   el('stats-ch-sub').textContent = chapterVerseCount(ch) + '절';
+  renderStatsContent();
+  showScreen('screen-stats');
+}
+
+function selectStatsMode(mode) {
+  statsMode = mode;
+  renderStatsContent();
+}
+
+function renderStatsContent() {
+  const ch = statsChapter;
+  const d = modeData(statsMode);
   const n = chapterVerseCount(ch);
+
+  // 탭 강조
+  ['address', 'memory'].forEach(function(m) {
+    const tab = el('stats-tab-' + m);
+    if (tab) {
+      tab.style.borderBottomColor = m === statsMode ? 'var(--primary)' : 'transparent';
+      tab.style.color = m === statsMode ? 'var(--text)' : 'var(--text2)';
+    }
+  });
+
   let html = '';
   for (let v = 1; v <= n; v++) {
     const ref = verseRef(ch, v);
-    const penalty = save.penalty[ref] || 0;
-    const total = save.attempts[ref] || 0;
-    const hist = save.history[ref] || [];
+    const penalty = d.penalty[ref] || 0;
+    const total = d.attempts[ref] || 0;
+    const hist = d.history[ref] || [];
     let dots = '';
     for (let i = 0; i < 5; i++) {
       if (i < hist.length) dots += '<div class="dot ' + (hist[i] ? 'o' : 'x') + '"></div>';
@@ -717,7 +758,7 @@ function openStats(ch) {
   el('stats-table-body').innerHTML = html;
 
   // accuracy graph
-  const sessions = (save.sessionAccuracy && save.sessionAccuracy[ch]) || [];
+  const sessions = d.sessionAccuracy[ch] || [];
   const barsEl = el('stats-bars');
   if (barsEl) {
     if (sessions.length === 0) {
@@ -737,7 +778,7 @@ function openStats(ch) {
   // timer records
   const timerEl = el('stats-timer-record');
   if (timerEl) {
-    const rec = save.timerRecords && save.timerRecords[ch];
+    const rec = d.timerRecords[ch];
     if (rec && rec.length) {
       timerEl.innerHTML = '⏱ 완벽 클리어 최고기록: <strong>' + formatTime(rec[0]) + '</strong>' +
         (rec.length > 1 ? '  &nbsp;2위: ' + formatTime(rec[1]) : '');
@@ -745,8 +786,6 @@ function openStats(ch) {
       timerEl.textContent = '타이머 완벽 클리어 기록 없음';
     }
   }
-
-  showScreen('screen-stats');
 }
 
 // ── Init ──

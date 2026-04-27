@@ -170,6 +170,12 @@
       <h1 id="stats-ch-title">계시록 1장 상세</h1>
       <span style="font-size:13px;color:var(--text2)" id="stats-ch-sub"></span>
     </div>
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--border);">
+      <button id="stats-tab-address" onclick="selectStatsMode('address')"
+        style="flex:1;padding:10px;background:none;border:none;font-size:14px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);">절 번호 맞히기</button>
+      <button id="stats-tab-memory" onclick="selectStatsMode('memory')"
+        style="flex:1;padding:10px;background:none;border:none;font-size:14px;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;color:var(--text2);">구절 받아쓰기</button>
+    </div>
     <div class="screen-scroll">
       <!-- 숙달도 그래프 -->
       <div class="stats-accuracy-card" id="stats-accuracy-card">
