@@ -424,10 +424,7 @@ function renderMemoryMode(ch, v, data) {
   setTimeout(function() {
     const input = el('hidden-input');
     if (!input) return;
-    let composing = false;
-    input.addEventListener('compositionstart', function() { composing = true; });
-    input.addEventListener('compositionend', function(e) { composing = false; handleMemoryInput(e); });
-    input.addEventListener('input', function(e) { if (!composing) handleMemoryInput(e); });
+    input.addEventListener('input', function(e) { handleMemoryInput(e); });
     input.focus();
   }, 120);
 }
