@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>RevDrills · 계시록 암송</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0f0f1a" />
+</head>
+<body>
+<div id="app">
+
+  <!-- ── Home ── -->
+  <div id="screen-home" class="screen">
+    <div class="top-bar">
+      <h1>계시록 암송</h1>
+      <button class="btn-icon" onclick="openSettings()" title="설정">⚙</button>
+    </div>
+    <div class="screen-scroll">
+      <div class="home-summary">
+        <h2>전체 진도</h2>
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="home-progress-bar" style="width:0%"></div>
+        </div>
+        <p id="home-progress-text">0 / 404절 완료</p>
+      </div>
+      <div class="chapter-grid" id="chapter-grid"></div>
+    </div>
+  </div>
+
+  <!-- ── Settings ── -->
+  <div id="screen-settings" class="screen">
+    <div class="top-bar">
+      <button class="btn-icon" onclick="goHome()">←</button>
+      <h1>설정</h1>
+    </div>
+    <div class="screen-scroll">
+      <div class="setup-card">
+        <h3>글자 크기</h3>
+        <div class="font-size-buttons">
+          <button class="font-size-btn" id="fsz-small"  onclick="setFontSize('small')">작게</button>
+          <button class="font-size-btn" id="fsz-medium" onclick="setFontSize('medium')">보통</button>
+          <button class="font-size-btn" id="fsz-large"  onclick="setFontSize('large')">크게</button>
+        </div>
+      </div>
+      <div class="setup-card">
+        <h3>데이터 초기화</h3>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">모든 학습 기록, 오답 패널티, 타이머 기록이 삭제됩니다.</p>
+        <button class="btn btn-ghost" style="border-color:var(--danger);color:var(--danger)" onclick="resetAllData()">기록 전체 초기화</button>
+      </div>
+      <div class="setup-card" id="pwa-install-card" style="display:none">
+        <h3>앱 설치</h3>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">홈 화면에 추가하면 앱처럼 사용할 수 있습니다.</p>
+        <button class="btn btn-primary" onclick="installPWA()">홈 화면에 추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Setup ── -->
+  <div id="screen-setup" class="screen">
+    <div class="top-bar">
+      <button class="btn-icon" onclick="goHome()">←</button>
+      <h1 id="setup-chapter-title">계시록 1장</h1>
+      <span style="font-size:13px;color:var(--text2)" id="setup-chapter-sub">20절</span>
+    </div>
+    <div class="screen-scroll">
+
+      <div class="setup-card">
+        <h3>모드 선택</h3>
+        <div class="mode-buttons">
+          <div class="mode-btn selected" id="mode-btn-address" onclick="selectMode('address')">
+            <span class="mode-icon">🔍</span>
+            <span class="mode-name">주소의 고난</span>
+            <span class="mode-desc">구절을 보고<br>절 번호 맞히기</span>
+          </div>
+          <div class="mode-btn" id="mode-btn-memory" onclick="selectMode('memory')">
+            <span class="mode-icon">✍️</span>
+            <span class="mode-name">망각의 고난</span>
+            <span class="mode-desc">주소를 보고<br>전체 구절 타이핑</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <h3>타이머</h3>
+        <div class="mode-buttons">
+          <div class="mode-btn" id="timer-btn-off" onclick="selectTimer(false)">
+            <span class="mode-icon">🧘</span>
+            <span class="mode-name">자유 진행</span>
+          </div>
+          <div class="mode-btn selected" id="timer-btn-on" onclick="selectTimer(true)">
+            <span class="mode-icon">⏱</span>
+            <span class="mode-name">타이머</span>
+            <span class="mode-desc" id="timer-best-label"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-card">
+        <h3>이번 세션</h3>
+        <div class="pool-preview">
+          <div>출제 문제 수: <strong id="pool-total">—</strong>문제</div>
+          <div class="pool-breakdown"><span id="pool-extra" style="display:none"></span></div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="goStartSession()" style="margin-top:8px">세션 시작 ▶</button>
+      <button class="btn btn-ghost" onclick="openStats(setupChapter)" style="margin-top:8px">
+        📊 이 장 상세 통계
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Session ── -->
+  <div id="screen-session" class="screen">
+    <div class="session-header">
+      <div class="session-progress-row">
+        <div class="progress-bar-wrap" style="flex:1">
+          <div class="progress-bar-fill" id="session-progress-bar" style="width:0%"></div>
+        </div>
+        <span class="prog-label" id="session-progress-label">1 / 20</span>
+        <span class="timer-display" id="timer-display" style="display:none">0:00</span>
+        <button class="btn-icon" onclick="confirmQuit()" style="color:var(--text2);font-size:16px">✕</button>
+      </div>
+    </div>
+    <div class="session-body" id="session-field">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ── Result ── -->
+  <div id="screen-result" class="screen">
+    <div class="screen-scroll">
+      <div class="result-header">
+        <span class="result-icon" id="result-icon">✅</span>
+        <h2 id="result-chapter-title">계시록 1장 완료</h2>
+        <p id="result-timer-line" style="display:none"></p>
+      </div>
+
+      <div class="next-session-preview">
+        <h4>다음 세션 예고</h4>
+        <div class="count" id="next-total">—<span id="next-extra-detail" style="font-size:13px;margin-left:6px"></span></div>
+      </div>
+
+      <div class="result-table">
+        <div class="result-table-header">
+          <span>구절</span>
+          <span>결과</span>
+          <span style="text-align:right">평가</span>
+        </div>
+        <div id="result-rows"></div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-ghost" onclick="retrySession()">다시 풀기</button>
+        <button class="btn btn-primary" onclick="goHome()">홈으로</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div id="screen-stats" class="screen">
+    <div class="top-bar">
+      <button class="btn-icon" onclick="showScreen('screen-setup')">←</button>
+      <h1 id="stats-ch-title">계시록 1장 상세</h1>
+      <span style="font-size:13px;color:var(--text2)" id="stats-ch-sub"></span>
+    </div>
+    <div class="screen-scroll">
+      <!-- 숙달도 그래프 -->
+      <div class="stats-accuracy-card" id="stats-accuracy-card">
+        <div class="stats-accuracy-title">최근 세션 정확도</div>
+        <div class="stats-bars" id="stats-bars"></div>
+        <div class="stats-timer-record" id="stats-timer-record"></div>
+      </div>
+      <div class="stats-table">
+        <div class="stats-table-header">
+          <span>절</span>
+          <span>총 횟수</span>
+          <span>추가</span>
+          <span style="text-align:right">최근 5회</span>
+        </div>
+        <div id="stats-table-body"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /#app -->
+
+<!-- Ad banner -->
+<div id="ad-banner">광고 영역</div>
+
+<script src="bible.js"></script>
+<script src="app_logic.js"></script>
+
+<script>
+function confirmQuit() {
+  if (confirm('세션을 종료하시겠습니까?\n지금까지의 진행 상황은 저장되지 않습니다.')) {
+    goHome();
+  }
+}
+
+// PWA install prompt
+let pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  pwaPrompt = e;
+  document.getElementById('pwa-install-card').style.display = '';
+});
+
+function installPWA() {
+  if (!pwaPrompt) return;
+  pwaPrompt.prompt();
+  pwaPrompt.userChoice.then(() => { pwaPrompt = null; });
+}
+
+// Service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js');
+}
+</script>
+</body>
+</html>
