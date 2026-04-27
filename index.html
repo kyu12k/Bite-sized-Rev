@@ -75,13 +75,13 @@
         <div class="mode-buttons">
           <div class="mode-btn selected" id="mode-btn-address" onclick="selectMode('address')">
             <span class="mode-icon">🔍</span>
-            <span class="mode-name">주소의 고난</span>
-            <span class="mode-desc">구절을 보고<br>절 번호 맞히기</span>
+            <span class="mode-name">절 번호 맞히기</span>
+            <span class="mode-desc">몇 절인지 맞히기</span>
           </div>
           <div class="mode-btn" id="mode-btn-memory" onclick="selectMode('memory')">
             <span class="mode-icon">✍️</span>
-            <span class="mode-name">망각의 고난</span>
-            <span class="mode-desc">주소를 보고<br>전체 구절 타이핑</span>
+            <span class="mode-name">구절 받아쓰기</span>
+            <span class="mode-desc">구절 전체 쓰기</span>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@
         <div class="mode-buttons">
           <div class="mode-btn" id="timer-btn-off" onclick="selectTimer(false)">
             <span class="mode-icon">🧘</span>
-            <span class="mode-name">자유 진행</span>
+            <span class="mode-name">천천히</span>
           </div>
           <div class="mode-btn selected" id="timer-btn-on" onclick="selectTimer(true)">
             <span class="mode-icon">⏱</span>
@@ -109,7 +109,7 @@
         </div>
       </div>
 
-      <button class="btn btn-primary" onclick="goStartSession()" style="margin-top:8px">세션 시작 ▶</button>
+      <button class="btn btn-primary" onclick="goStartSession()" style="margin-top:8px">시작 ▶</button>
       <button class="btn btn-ghost" onclick="openStats(setupChapter)" style="margin-top:8px">
         📊 이 장 상세 통계
       </button>
