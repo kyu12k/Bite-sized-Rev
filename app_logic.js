@@ -453,16 +453,27 @@ function renderMemoryMode(ch, v, data) {
       input.selectionStart = input.selectionEnd = input.value.length;
     });
 
+    // 엔터키로 정답 확인 (모든 슬롯 채웠을 때만)
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const typeableSlots = memorySlots.filter(function(s) { return s.typeable; });
+        if (typeableSlots.every(function(s) { return s.value; })) {
+          submitMemory();
+        }
+      }
+    });
+
     input.focus();
 
     // 화면 어디를 눌러도 포커스가 hidden-input으로 돌아오도록
     function keepFocus(e) {
       const target = e.target;
-      // 버튼, 링크, select 등 실제 인터랙티브 요소는 제외
       if (target === input) return;
       if (target.tagName === 'BUTTON' || target.tagName === 'A' || target.tagName === 'SELECT') return;
       e.preventDefault();
-      input.focus();
+      // 이미 포커스가 있으면 focus() 재호출 하지 않음 (조합 중 글자 사라짐 방지)
+      if (document.activeElement !== input) input.focus();
     }
     const sessionEl = document.getElementById('screen-session');
     if (sessionEl) {
