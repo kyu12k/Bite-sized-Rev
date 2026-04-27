@@ -94,10 +94,11 @@ function openSettings() {
 }
 
 function resetAllData() {
-  if (!confirm('모든 학습 기록을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) return;
-  localStorage.removeItem(SAVE_KEY);
-  save = defaultSave();
-  goHome();
+  showConfirm('모든 학습 기록을 초기화하시겠습니까?\n이 작업은 되돌릴 수 없습니다.', function() {
+    localStorage.removeItem(SAVE_KEY);
+    save = defaultSave();
+    goHome();
+  });
 }
 
 // ── Timer state ──
