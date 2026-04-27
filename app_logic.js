@@ -90,6 +90,23 @@ function recentAccuracy(ch, mode) {
   return Math.round(correct / total * 100);
 }
 
+// ── Theme ──
+const THEME_KEY = 'hanip_theme';
+const THEMES = ['default','blue','green','light','sepia','gold'];
+
+function setTheme(theme) {
+  THEMES.forEach(t => document.body.classList.remove('theme-' + t));
+  if (theme !== 'default') document.body.classList.add('theme-' + theme);
+  localStorage.setItem(THEME_KEY, theme);
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('selected'));
+  const btn = el('theme-' + theme);
+  if (btn) btn.classList.add('selected');
+}
+
+function loadTheme() {
+  setTheme(localStorage.getItem(THEME_KEY) || 'default');
+}
+
 // ── Font size ──
 const FONT_KEY = 'revdrills_font';
 function setFontSize(size) {
@@ -791,6 +808,7 @@ function renderStatsContent() {
 // ── Init ──
 document.addEventListener('DOMContentLoaded', function() {
   loadSave();
+  loadTheme();
   loadFontSize();
   renderHome();
   showScreen('screen-home');

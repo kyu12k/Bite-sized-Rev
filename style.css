@@ -17,6 +17,42 @@
   --ad-height: 60px;
 }
 
+/* ── 다크 블루 ── */
+body.theme-blue {
+  --primary: #4a9eff; --primary-dark: #2e7fd4;
+  --bg: #070d1a; --bg2: #0d1829; --bg3: #0a1522;
+  --card: #101e35; --card2: #162540;
+  --text: #ddeeff; --text2: #6a96c0; --border: #1a2e4a;
+}
+/* ── 다크 그린 ── */
+body.theme-green {
+  --primary: #2ecc71; --primary-dark: #27ae60;
+  --bg: #081208; --bg2: #0e1f0e; --bg3: #0b1a0b;
+  --card: #112411; --card2: #162e16;
+  --text: #dff5e4; --text2: #6aaa80; --border: #1a3a1a;
+}
+/* ── 라이트 ── */
+body.theme-light {
+  --primary: #5b4dcf; --primary-dark: #4a3db8;
+  --bg: #f0f0f8; --bg2: #ffffff; --bg3: #e8e8f4;
+  --card: #ffffff; --card2: #ebebf8;
+  --text: #1a1a30; --text2: #6060a0; --border: #c8c8e0;
+}
+/* ── 세피아 ── */
+body.theme-sepia {
+  --primary: #9b6c1a; --primary-dark: #7d540f;
+  --bg: #f5f0e4; --bg2: #fdfaf2; --bg3: #ede6d6;
+  --card: #fdfaf2; --card2: #f5eed8;
+  --text: #3a2510; --text2: #8a6840; --border: #d4c098;
+}
+/* ── 골드 ── */
+body.theme-gold {
+  --primary: #f0c040; --primary-dark: #d4a820;
+  --bg: #0c0900; --bg2: #1a1400; --bg3: #141000;
+  --card: #1e1800; --card2: #262000;
+  --text: #f5e8b0; --text2: #a09050; --border: #302800;
+}
+
 html, body {
   height: 100%;
   background: var(--bg);
@@ -614,6 +650,24 @@ body.fsz-xlarge .verse-btn  { font-size: 21px; }
 body.fsz-xlarge .chapter-card .ch-num    { font-size: 26px; }
 body.fsz-xlarge .chapter-card .ch-label  { font-size: 15px; }
 body.fsz-xlarge .chapter-card .ch-status { font-size: 13px; }
+
+/* ── Theme buttons ── */
+.theme-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.theme-btn {
+  border-radius: 12px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 10px 6px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  transition: border-color .15s;
+}
+.theme-btn.selected { border-color: var(--primary); }
 
 /* ── Settings screen ── */
 .font-size-buttons {
