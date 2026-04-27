@@ -97,7 +97,7 @@ html, body {
   width: 100%;
   max-width: 480px;
   height: var(--ad-height);
-  background: #111128;
+  background: var(--bg2);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
