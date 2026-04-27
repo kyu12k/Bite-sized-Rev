@@ -1,7 +1,7 @@
 {
-  "name": "RevDrills · 계시록 암송",
-  "short_name": "RevDrills",
-  "description": "요한계시록 암송 훈련 앱",
+  "name": "한 입 계시록",
+  "short_name": "한입계시록",
+  "description": "요한계시록 한 입씩 암송 훈련 앱",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f0f1a",
