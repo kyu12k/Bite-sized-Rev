@@ -391,23 +391,22 @@ html, body {
 }
 .char-slot.space-slot.active { border-bottom-color: var(--primary); }
 
-/* 궁극의 암기: remove underlines */
+/* 궁극의 암기: 완전히 빈 공간으로 */
 .typing-board.ultimate-mode .char-slot {
   border-bottom-color: transparent;
   color: transparent;
-  background: rgba(255,255,255,.06);
-  border-radius: 3px;
+  background: transparent;
 }
 .typing-board.ultimate-mode .char-slot.filled {
   color: var(--text);
-  background: rgba(255,255,255,.1);
+  background: transparent;
 }
 .typing-board.ultimate-mode .char-slot.wrong {
   color: var(--danger);
-  background: rgba(214,48,49,.15);
+  background: transparent;
 }
 .typing-board.ultimate-mode .char-slot.active {
-  background: rgba(108,92,231,.25);
+  background: transparent;
 }
 
 .hidden-input {
