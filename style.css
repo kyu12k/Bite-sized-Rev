@@ -585,6 +585,9 @@ body.fsz-small  .fixed-char,
 body.fsz-small  .char-slot  { font-size: 13px; }
 body.fsz-small  .memory-ref { font-size: 17px; }
 body.fsz-small  .verse-reveal { font-size: 13px; }
+body.fsz-small  .chapter-card .ch-num    { font-size: 15px; }
+body.fsz-small  .chapter-card .ch-label  { font-size: 10px; }
+body.fsz-small  .chapter-card .ch-status { font-size: 9px; }
 
 body.fsz-medium .verse-text,
 body.fsz-medium .fixed-char,
@@ -598,6 +601,9 @@ body.fsz-large  .char-slot  { font-size: 21px; }
 body.fsz-large  .memory-ref { font-size: 28px; }
 body.fsz-large  .verse-reveal { font-size: 20px; }
 body.fsz-large  .verse-btn  { font-size: 17px; }
+body.fsz-large  .chapter-card .ch-num    { font-size: 22px; }
+body.fsz-large  .chapter-card .ch-label  { font-size: 13px; }
+body.fsz-large  .chapter-card .ch-status { font-size: 12px; }
 
 body.fsz-xlarge .verse-text,
 body.fsz-xlarge .fixed-char,
@@ -605,6 +611,9 @@ body.fsz-xlarge .char-slot  { font-size: 27px; }
 body.fsz-xlarge .memory-ref { font-size: 34px; }
 body.fsz-xlarge .verse-reveal { font-size: 26px; }
 body.fsz-xlarge .verse-btn  { font-size: 21px; }
+body.fsz-xlarge .chapter-card .ch-num    { font-size: 26px; }
+body.fsz-xlarge .chapter-card .ch-label  { font-size: 15px; }
+body.fsz-xlarge .chapter-card .ch-status { font-size: 13px; }
 
 /* ── Settings screen ── */
 .font-size-buttons {
