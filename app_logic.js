@@ -58,6 +58,78 @@ function isTypeable(char) {
   return (c >= 0xAC00 && c <= 0xD7A3) || (c >= 0x61 && c <= 0x7A) || (c >= 0x41 && c <= 0x5A) || (c >= 0x30 && c <= 0x39);
 }
 
+// 삼성 갤럭시 키보드 등에서 자모가 개별 문자로 input.value에 들어오는 경우를 대비해
+// 호환 자모(U+3131-U+3163) 시퀀스를 완성 음절로 조합한다.
+function composeHangul(str) {
+  const CHO  = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+  // 종성 목록 (인덱스 0 = 종성 없음)
+  const JONG = ['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+  // 종성이 다음 음절의 초성이 될 수 있는 경우: {종성idx: 초성idx}
+  const JONG_TO_CHO = {1:0,2:1,4:2,7:3,8:5,16:6,17:7,19:9,20:10,21:11,22:12,24:14,25:15,26:16,27:17,28:18};
+
+  function makeSyllable(ci, ji, jni) {
+    return String.fromCharCode(0xAC00 + (ci * 21 + ji) * 28 + jni);
+  }
+
+  const chars = Array.from(str);
+  const result = [];
+  let i = 0;
+
+  while (i < chars.length) {
+    const c = chars[i];
+    const code = c.charCodeAt(0);
+
+    // 이미 완성 음절이거나 자모가 아닌 문자 → 그대로 출력
+    if (code < 0x3131 || code > 0x3163) {
+      result.push(c);
+      i++;
+      continue;
+    }
+
+    const ci = CHO.indexOf(c);
+    if (ci === -1) {
+      // 모음으로 시작 → 조합 불가, 그대로
+      result.push(c);
+      i++;
+      continue;
+    }
+
+    // 초성 확정, 다음이 중성?
+    const next = chars[i + 1];
+    if (!next) { result.push(c); i++; continue; }
+    const ji = JUNG.indexOf(next);
+    if (ji === -1) { result.push(c); i++; continue; }
+
+    // 초성+중성 확정 → 종성 탐색
+    i += 2;
+    const after = chars[i];
+    if (!after) { result.push(makeSyllable(ci, ji, 0)); continue; }
+
+    const afterCode = after.charCodeAt(0);
+    if (afterCode < 0x3131 || afterCode > 0x3163) {
+      result.push(makeSyllable(ci, ji, 0));
+      continue;
+    }
+
+    const jni = JONG.indexOf(after);
+    if (jni <= 0) { result.push(makeSyllable(ci, ji, 0)); continue; }
+
+    // 종성 후보 → 그 다음 문자가 중성이면 종성 반납
+    const afterAfter = chars[i + 1];
+    if (afterAfter && JUNG.indexOf(afterAfter) !== -1) {
+      // 종성을 다음 음절 초성으로 사용
+      result.push(makeSyllable(ci, ji, 0));
+      // after는 소비하지 않고 다음 루프에서 초성으로 처리
+    } else {
+      result.push(makeSyllable(ci, ji, jni));
+      i++;
+    }
+  }
+
+  return result.join('');
+}
+
 function charsMatch(a, b) {
   return a === b;
 }
@@ -568,8 +640,10 @@ function focusMemoryInput() {
 function handleMemoryInput(e) {
   if (awaitingNext) return;
   const input = e.target;
-  const typed = input.value;
-  memoryTyped = typed;
+  const raw = input.value;
+  // 삼성 갤럭시 등에서 자모가 분리 입력되는 경우 음절로 조합
+  const typed = composeHangul(raw);
+  memoryTyped = raw;
   let idx = 0;
   for (let i = 0; i < memorySlots.length; i++) {
     const s = memorySlots[i];
