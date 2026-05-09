@@ -470,7 +470,7 @@ function renderAddressMode(ch, v, data) {
   const n = chapterVerseCount(ch);
   let btns = '';
   for (let i = 1; i <= n; i++) {
-    btns += '<button class="verse-btn" id="vbtn-' + i + '" onclick="submitAddress(' + i + ')">' + i + '절</button>';
+    btns += '<button class="verse-btn" id="vbtn-' + i + '" onclick="submitAddress(' + i + ')" ontouchstart="event.preventDefault();submitAddress(' + i + ')">' + i + '절</button>';
   }
   field.innerHTML =
     '<div class="verse-card" id="verse-card">' +
@@ -480,7 +480,7 @@ function renderAddressMode(ch, v, data) {
     '<div class="address-indicator">이 구절은 계시록 ' + ch + '장 몇 절인가요?</div>' +
     '<div class="verse-buttons">' + btns + '</div>' +
     '<div id="session-next-wrap" style="display:none;margin-top:4px">' +
-    '<button class="btn btn-primary" onclick="nextVerse()">다음 ▶</button></div>';
+    '<button class="btn btn-primary" onclick="nextVerse()" ontouchstart="event.preventDefault();nextVerse()">다음 ▶</button></div>';
 }
 
 function submitAddress(picked) {
@@ -523,7 +523,7 @@ function renderMemoryMode(ch, v, data) {
     '</div>' +
     '<div id="memory-warn" style="font-size:13px;color:var(--danger);text-align:center;opacity:0;transition:opacity .3s;min-height:18px">글자 수를 모두 채운 후 정답을 확인하세요.</div>' +
     '<div id="session-next-wrap" style="display:none">' +
-    '<button class="btn btn-primary" onclick="nextVerse()">다음 ▶</button></div>';
+    '<button class="btn btn-primary" onclick="nextVerse()" ontouchstart="event.preventDefault();nextVerse()">다음 ▶</button></div>';
   renderMemorySlots();
   setTimeout(function() {
     const input = el('hidden-input');
@@ -721,6 +721,7 @@ function showFeedback(type, msg) {
 }
 
 function nextVerse() {
+  if (!awaitingNext) return;
   renderSession();
 }
 

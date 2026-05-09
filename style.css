@@ -367,6 +367,9 @@ html, body {
   cursor: pointer;
   text-align: center;
   transition: background .1s, border-color .1s;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 .verse-btn:hover { background: var(--bg3); border-color: var(--primary); }
 .verse-btn.correct { background: rgba(0,184,148,.2); border-color: var(--success); color: var(--success); }
